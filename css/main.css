@@ -34,8 +34,8 @@ img {
 }
 
 .color-box {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     margin-top: 5px;
 }
 
@@ -54,6 +54,11 @@ button {
     height: 40px;
     width: 100px;
     font-size: 14px;
+}
+
+.btns {
+    display: flex;
+    gap: 10px;
 }
 
 .disabledButton {

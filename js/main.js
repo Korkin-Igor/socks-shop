@@ -39,10 +39,6 @@ Vue.component('product', {
             <ul>
                 <li v-for="size in sizes">{{ size }}</li>
             </ul>
-
-            <div class="cart">
-                <p>Cart({{ cart }})</p>
-            </div>
         
             <div class="btns">
                 <button
@@ -82,19 +78,19 @@ Vue.component('product', {
             ],
 
             sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
-            cart: 0,
         }
     },
     methods: {
-        addToCart() {
-            this.cart += 1
-        },
         updateProduct(index) {
             this.selectedVariant = index;
             console.log(index);
         },
+        addToCart() {
+            this.$emit('add-to-cart',
+                this.variants[this.selectedVariant].variantId);
+        },
         removeFromCart() {
-            if (this.cart > 0) this.cart -= 1
+            this.$emit('remove-from-cart');
         },
     },
     computed: {
@@ -138,6 +134,16 @@ Vue.component('product-details', {
 let app = new Vue({
     el: '#app',
     data: {
-        premium: true
+        premium: true,
+        cart: []
+    },
+    methods: {
+        updateCart(id) {
+            this.cart.push(id);
+        },
+        removeFromCart() {
+            this.cart.pop()
+        }
     }
+
 })

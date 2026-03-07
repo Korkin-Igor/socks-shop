@@ -1,3 +1,5 @@
+let eventBus = new Vue()
+
 Vue.component('product', {
     template: `
    <div class="product">
@@ -15,8 +17,6 @@ Vue.component('product', {
 
             <span v-show="onSale">{{ sale }}</span>
 
-            <product-details></product-details>
-            <p>Shipping: {{ shipping }}</p>
             <div
                     class="color-box"
                     v-for="(variant, index) in variants"
@@ -37,29 +37,11 @@ Vue.component('product', {
                         :class="{ disabledButton: !inStock }"
                 >
                     Add to cart</button>
-                <button @click="removeFromCart">Remove from cart</button>
+                <button @click="removeFromCart" :class="{disabledButton: !inStock}">
+                    Remove from cart
+                </button>
             </div>
         </div>
-        
-        <div>
-          <h2>Reviews</h2>
-         
-    <div v-if="typeof reviews !== 'undefined' && reviews.length > 0">
-          <h2>Reviews</h2>
-          <ul>
-            <li v-for="(review, index) in reviews" :key="index">
-                <p>Name: {{ review.name }}</p>
-                <p>Rating: {{ review.rating }}</p>
-                <p>Review: {{ review.review }}</p>
-                <p v-if="review.recommended !== undefined">
-                    Recommended: {{ review.recommended ? 'Yes' : 'No' }}
-                </p>
-            </li>
-          </ul>
-    </div>
-    <div v-else-if="typeof reviews !== 'undefined'">
-        <p>There are no reviews yet.</p>
-    </div>
     
    </div>
    `,
@@ -80,7 +62,7 @@ Vue.component('product', {
             description: "A pair of warm, fuzzy socks",
             selectedVariant: 0,
             altText: "A pair of socks",
-            link: "https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=socks",
+            link: "https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=socks  ",
             onSale: true,
             variants: [
                 {
@@ -131,7 +113,13 @@ Vue.component('product', {
                 return 2.99
             }
         }
+    },
+    mounted() {
+        eventBus.$on('review-submitted', productReview => {
+            this.reviews.push(productReview)
+        })
     }
+
 })
 
 Vue.component('product-details', {
@@ -220,7 +208,7 @@ Vue.component('product-review', {
                     recommended: this.isRecommended === 'yes'
                 }
 
-                this.$emit('review-submitted', productReview)
+                eventBus.$emit('review-submitted', productReview)
 
                 this.name = null
                 this.review = null
@@ -231,12 +219,77 @@ Vue.component('product-review', {
     },
 })
 
+Vue.component('product-tabs', {
+    props: {
+        reviews: {
+            type: Array,
+            required: false
+        },
+        shipping: {
+            type: [String, Number],
+            required: false
+        }
+    },
+    template: `
+     <div>   
+       <ul>
+         <span class="tab"
+               :class="{ activeTab: selectedTab === tab }"
+               v-for="(tab, index) in tabs"
+               @click="selectedTab = tab"
+         >{{ tab }}</span>
+       </ul>
+       <div v-show="selectedTab === 'Reviews'">
+         <p v-if="!reviews.length">There are no reviews yet.</p>
+         <ul>
+           <li v-for="review in reviews">
+           <h2>{{ review.name }}</h2>
+           <p>Rating: {{ review.rating }}</p>
+           <p>{{ review.review }}</p>
+           <p>{{ (review.recommended ? '' : 'no ') + 'recommend' }}</p>
+           </li>
+         </ul>
+       </div>
+       <div v-show="selectedTab === 'Make a Review'">
+         <product-review @review-submitted="addReview"></product-review>
+       </div>
+       <div v-show="selectedTab === 'Shipping'">
+            <p>Shipping: {{ shipping ? '2.99' : 'Free'}}</p>
+       </div>
+       <div v-show="selectedTab === 'Details'">
+            <product-details></product-details>
+       </div>
+     </div>
+
+`,
+    data() {
+        return {
+            tabs: ['Reviews', 'Make a Review', 'Shipping', 'Details'],
+            selectedTab: 'Reviews'
+        }
+    },
+    methods: {
+        addReview(productReview) {
+            this.$emit('review-submitted', productReview)
+        }
+    }
+})
+
 let app = new Vue({
     el: '#app',
     data: {
         premium: true,
         cart: [],
         reviews: []
+    },
+    computed: {
+        shipping() {
+            if (this.premium) {
+                return "Free";
+            } else {
+                return 2.99
+            }
+        }
     },
     methods: {
         updateCart(id) {

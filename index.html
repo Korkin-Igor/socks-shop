@@ -22,7 +22,9 @@
             :premium="premium"
             @add-to-cart="updateCart"
             @remove-from-cart="removeFromCart"
+            :reviews="reviews"
     ></product>
+    <product-review @review-submitted="addReview"></product-review>
 </div>
 </body>
 </html>

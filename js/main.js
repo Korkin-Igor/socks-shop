@@ -62,7 +62,7 @@ Vue.component('product', {
             description: "A pair of warm, fuzzy socks",
             selectedVariant: 0,
             altText: "A pair of socks",
-            link: "https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=socks  ",
+            link: "https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=socks",
             onSale: true,
             variants: [
                 {
@@ -200,6 +200,10 @@ Vue.component('product-review', {
             if(!this.name) this.errors.push("Name required.")
             if(!this.review) this.errors.push("Review required.")
             if(this.rating === null) this.errors.push("Rating required.")
+            if(this.rating <= 2 && this.isRecommended === 'yes') this.errors.push(
+                "You cannot recommend a product that has been rated 2 stars or below.")
+            if(this.rating >= 3 && this.isRecommended === 'no') this.errors.push(
+                "You can't not recommend a product that has been rated 4 stars more than.")
 
             if(this.errors.length === 0) {
                 let productReview = {

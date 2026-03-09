@@ -117,6 +117,7 @@ Vue.component('product', {
     mounted() {
         eventBus.$on('review-submitted', productReview => {
             this.reviews.push(productReview)
+            localStorage.setItem('reviews', JSON.stringify(this.reviews));
         })
     }
 
@@ -143,7 +144,7 @@ Vue.component('product-review', {
      <ul>
        <li v-for="error in errors">{{ error }}</li>
      </ul>
-    </p>
+     </p>
 
      <p>
        <label for="name">Name:</label>
@@ -280,7 +281,7 @@ let app = new Vue({
     data: {
         premium: true,
         cart: [],
-        reviews: []
+        reviews: JSON.parse(localStorage.getItem('reviews')) || [],
     },
     computed: {
         shipping() {
